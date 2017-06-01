@@ -1,0 +1,50 @@
+
+<!--<div class="row">
+    <dynamic-form [questions]="questions"></dynamic-form>
+</div>-->  
+
+    <div class="col-md-offset-2 col-md-8">
+        <form-wizard>
+  <wizard-step [title]="'Select Client'" [isValid]="clientForm.form.valid" (onNext)="onStep1Next($event)">
+    <h4>Introduction and Organisation</h4>
+    <form #clientForm="ngForm">
+        <div class="form-group">
+            <p>
+                Remember to Smile and be professional with all callers
+            </p>
+        </div>
+      <div class="form-group">
+        <label for="clientSelection">Employer/Organisation</label>
+         <select class="form-control" name="clientSelection" [(ngModel)]="company.id" required>          
+<option *ngFor="let company of companies" value={{company.companyId}} >
+    {{company.companyName}}
+</option>
+</select>
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+      </div>
+    </form>
+  </wizard-step>
+  <wizard-step [title]="'Welcome Script'" (onNext)="onStep2Next($event)">
+    <p>{{companyScript}}</p>
+  </wizard-step>
+  <wizard-step [title]="'Call Purpose'" (onNext)="onStep3Next($event)">
+    <h1>Step3</h1>
+  </wizard-step>
+  <wizard-step [title]="'Verify Employee'" (onComplete)="onComplete($event)">
+    <div [ngSwitch]="isCompleted">
+      <div *ngSwitchDefault>
+        <h1>Step4</h1>
+      </div>
+      <div *ngSwitchCase="true">
+        <h4>Thank you! You have completed all the steps.</h4>
+      </div>
+    </div>
+  </wizard-step>
+</form-wizard>
+    </div>
+    
+    
+
+ 
+
+
