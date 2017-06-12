@@ -15,6 +15,7 @@ export class WizardStepComponent implements OnInit {
   @Input() isValid: boolean = true;
   @Input() showNext: boolean = true;
   @Input() showPrev: boolean = true;
+  @Input() completeBtnText: string = 'Done';
 
   @Output() onNext: EventEmitter<any> = new EventEmitter<any>();
   @Output() onPrev: EventEmitter<any> = new EventEmitter<any>();

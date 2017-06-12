@@ -4,7 +4,7 @@ import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 import { environment } from '../../environments/environment';
 import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
 import { Subject, Observable } from 'rxjs';
-
+import { NgProgressService } from 'ngx-progressbar';
 @Injectable()
 export class AuthService {
 
@@ -14,14 +14,15 @@ export class AuthService {
   lastUrl: string;
   jwtHelper: JwtHelper = new JwtHelper();
 
-  constructor(private http: Http, private router: Router) { 
+  constructor(private http: Http, private router: Router
+              , private progress: NgProgressService) {
     this.requireLoginSubject = new Subject<boolean>();
     this.tokenIsBeingRefreshed = new Subject<boolean>();
     this.tokenIsBeingRefreshed.next(false);
     this.lastUrl = "/home";
   }
 
-  isUserAuthenticated() {    
+  isUserAuthenticated() {
     if(this.loggedIn()) {
       this.requireLoginSubject.next(false);
       return true;
@@ -31,6 +32,7 @@ export class AuthService {
   }
 
   login(username: string, password: string) {
+    this.progress.start();
     let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
     let options = new RequestOptions({ headers: headers });
     let body = new URLSearchParams();
@@ -40,17 +42,18 @@ export class AuthService {
     body.set('grant_type', 'password');
 
     return this.http.post(this.tokenEndpoint, body, options)
-                    //.map(res => res.json());
-                    .map(response=> {                
+                    //.map(res => res.json())
+
+                    .map(response=> {
                 //login successful if there's a jwt token in the response
-                let token = response.json() && response.json().access_token;               
+                let token = response.json() && response.json().access_token;
                 if(token){
                     // set token property
-                    this.addTokens(response.json().access_token, response.json().refresh_token)                   
-                    //store username and jwt token in local storage to keep user logged 
+                    this.addTokens(response.json().access_token, response.json().refresh_token)
+                    //store username and jwt token in local storage to keep user logged
                     //in between page refreshes
                     localStorage.setItem('currentUser', JSON.stringify({username: username, token: token}));
-
+                    this.progress.done();
                     //return true to indicate successful login
                     return true;
                 }
@@ -61,13 +64,49 @@ export class AuthService {
             });
   }
 
+  private StoreToken(data){
+         //login successful if there's a jwt token in the response
+        let token = data.response.json() && data.response.json().access_token;
+        if(token){
+            // set token property
+            this.addTokens(data.response.json().access_token, data.response.json().refresh_token)
+            //store username and jwt token in local storage to keep user logged
+            //in between page refreshes
+            localStorage.setItem('currentUser', JSON.stringify({username: 'username', token: token}));
+            this.progress.done();
+            //return true to indicate successful login
+            return true;
+        }
+        else{
+            //return false to indicare failed login
+            return false;
+        }
+  }
+  /**
+   * Handle any errors from the API
+   */
+  private handleError(err) {
+    console.log(err);
+
+    let errMessage: string;
+
+    if (err instanceof Response) {
+      let body   = err.json() || '';
+      let error  = JSON.stringify(body);
+      errMessage = `${err.status} - ${err.statusText} || ''} ${error}`;
+    } else {
+      errMessage = err.message ? err.message : err.toString();
+    }
+
+    return Observable.throw(errMessage);
+  }
   loggedIn() {
     return tokenNotExpired('id_token');
   }
 
   addTokens(accessToken: string, refreshToken: string) {
     localStorage.setItem('id_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);     
+    localStorage.setItem('refresh_token', refreshToken);
   }
   /* NOT in use
   getRefreshTokenExpirationDate() {
@@ -96,17 +135,15 @@ export class AuthService {
   */
   refreshTokenSuccessHandler(data) {
     if (data.error) {
-        console.log("Removing tokens.");
         this.logout();
         this.requireLoginSubject.next(true);
         this.tokenIsBeingRefreshed.next(false);
         this.router.navigateByUrl('/login');
         return false;
     } else {
-        this.addTokens(data.access_token, data.refresh_token);        
+        this.addTokens(data.access_token, data.refresh_token);
         this.requireLoginSubject.next(false);
         this.tokenIsBeingRefreshed.next(false);
-        console.log("Refreshed user token");
     }
   }
 
@@ -114,12 +151,11 @@ export class AuthService {
     this.requireLoginSubject.next(true);
     this.logout();
     this.tokenIsBeingRefreshed.next(false);
-    this.router.navigate(['/sessiontimeout']);
+    this.router.navigate(['/login']);
     console.log(error);
   }
-  
+
   refreshToken() {
-    console.log('refresh');
     let refToken = localStorage.getItem('refresh_token');
     //let refTokenId = this.jwtHelper.decodeToken(refToken).refreshTokenId;
     let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
@@ -130,12 +166,11 @@ export class AuthService {
     body.set('refresh_token', refToken);
 
     return this.http.post(this.tokenEndpoint, body, options)
-      .map(res => res.json());
+                    .map(res => res.json())
   }
 
-  tokenRequiresRefresh(): boolean {     
+  tokenRequiresRefresh(): boolean {
     var token = localStorage.getItem('id_token');
-    console.log(this.jwtHelper.isTokenExpired(token, environment.refreshTokenBeforeSeconds));
     if (!this.loggedIn()) {
       console.log("Token refresh is required");
     }

@@ -1,9 +1,9 @@
 
 <!--<div class="row">
     <dynamic-form [questions]="questions"></dynamic-form>
-</div>-->  
+</div>-->
 
-    <div class="col-md-offset-2 col-md-8">
+    <div class="col-md-offset-1 col-md-10">
         <form-wizard>
   <wizard-step [title]="'Select Client'" [isValid]="clientForm.form.valid" (onNext)="onStep1Next($event)">
     <h4>Introduction and Organisation</h4>
@@ -15,36 +15,146 @@
         </div>
       <div class="form-group">
         <label for="clientSelection">Employer/Organisation</label>
-         <select class="form-control" name="clientSelection" [(ngModel)]="company.id" required>          
+         <select class="form-control" (change)="companyChange($event)" name="clientSelection" [(ngModel)]="company.id" required>
+           <option value="null">Select a client</option>
 <option *ngFor="let company of companies" value={{company.companyId}} >
     {{company.companyName}}
 </option>
 </select>
         <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
       </div>
+      <i class="companyid-icon" *ngIf="company.id != null">{{company.id}}</i>
     </form>
+
   </wizard-step>
   <wizard-step [title]="'Welcome Script'" (onNext)="onStep2Next($event)">
-    <p>{{companyScript}}</p>
+    <app-welcome-script [welcomeScript]="companyScript"></app-welcome-script>
   </wizard-step>
-  <wizard-step [title]="'Call Purpose'" (onNext)="onStep3Next($event)">
-    <h1>Step3</h1>
+
+   <!--<wizard-step [title]="'Test'" (onNext)="onStep2Next($event)">
+
+          <dynamic-form [questions]="questions"></dynamic-form>
+
+  </wizard-step>-->
+
+   <wizard-step [title]="'Employee Search'" [isValid]="searchForm.form.valid"  (onNext)="onStep3Next($event)">
+    <form #searchForm="ngForm">
+        <div class="row col-sm-10 form-horizontal">
+            <div class="form-group">
+              <div class="col-sm-3">
+                Who is the caller?
+              </div>
+              <div class="col-sm-4">
+                 <select class="form-control" name="callerType" [(ngModel)]="empSearch.callerType">
+                   <option value="0">Self</option>
+                   <option value="1">Other</option>
+                  </select>
+              </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-3">Employee Surname</div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" name="employeeSurname" [(ngModel)]="empSearch.employeeSurname" required/>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-3">Employee DoB</div>
+                <div class="col-sm-4">
+                   <input type="text" class="form-control" name="employeeDob" [(ngModel)]="empSearch.employeeDob"/>
+                </div>
+              </div>
+            </div>
+
+      </form>
   </wizard-step>
-  <wizard-step [title]="'Verify Employee'" (onComplete)="onComplete($event)">
+  <wizard-step [title]="'Select Employee'" [isValid]="i != selectedRow" (onNext)="onStep4Next($event)">
+         <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+
+                <th>Surname</th>
+                <th>FirstName</th>
+                 <th>Date of Birth</th>
+                  <th>Emp Ref</th>
+                  <th>Department</th>
+                  <th>Current Status</th>
+                   <th></th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of employees | paginate : { itemsPerPage: 10, currentPage: p } let i = index; "
+                  [class.active]="i == selectedRow">
+
+                  <td>{{e.surname}}</td>
+                   <td>{{e.firstname}}</td>
+                     <td>
+                       <span [innerHtml] ="e.dateofBirth"></span>
+                     </td>
+                      <td>{{e.employeeRef}}</td>
+                      <td>{{e.department}}</td>
+                      <td>
+                          <span [innerHtml] ="e.currentStatus"></span>
+                      </td>
+                        <td>
+                    <button class="btn btn-sm" (click)="selectedEmployee(i, e)">Select</button>
+                  </td>
+                </tr>
+            </tbody>
+          </table>
+            <pagination-controls (pageChange)="p = $event"></pagination-controls>
+
+  </wizard-step>
+
+  <wizard-step [title]="'Verify Employee'"  (onComplete)="onComplete($event)">
     <div [ngSwitch]="isCompleted">
       <div *ngSwitchDefault>
-        <h1>Step4</h1>
+          <div class="row col-sm-10 form-horizontal" >
+            <div class="form-group">
+              <div class="col-sm-2">
+                Employee Name
+              </div>
+              <div class="col-sm-5">
+                {{selEmployee.fullName}}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-2">
+                 Date of Birth
+              </div>
+              <div class="col-sm-5">
+                {{selEmployee.dateofBirth}}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-2">
+                Seucrity Question
+              </div>
+              <div class="col-sm-5">
+                {{selEmployee.securityQuestion}}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-2">
+                 Security Answer
+              </div>
+              <div class="col-sm-5">
+                {{selEmployee.securityAnswer}}
+              </div>
+            </div>
+          </div>
       </div>
+
       <div *ngSwitchCase="true">
         <h4>Thank you! You have completed all the steps.</h4>
       </div>
     </div>
+
   </wizard-step>
 </form-wizard>
     </div>
-    
-    
 
- 
+
+
+
 
 

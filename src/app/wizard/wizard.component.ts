@@ -18,11 +18,11 @@ import { WizardStepComponent } from './wizard-step.component';
     <div class="card-footer" [hidden]="isCompleted">
         <button type="button" class="btn btn-default float-left" (click)="previous()" [hidden]="!hasPrevStep || !activeStep.showPrev">Previous</button>
         <button type="button" class="btn btn-default float-right" (click)="next()" [disabled]="!activeStep.isValid" [hidden]="!hasNextStep || !activeStep.showNext">Next</button>
-        <button type="button" class="btn btn-default float-right" (click)="complete()" [disabled]="!activeStep.isValid" [hidden]="hasNextStep">Done</button>
+        <button type="button" class="btn btn-default float-right" (click)="complete()" [disabled]="!activeStep.isValid" [hidden]="hasNextStep">{{activeStep.completeBtnText}}</button>
     </div>
   </div>`
   ,
-  styleUrls: ['./wizard.component.css'] 
+  styleUrls: ['./wizard.component.css']
 })
 export class WizardComponent implements OnInit, AfterContentInit {
   @ContentChildren(WizardStepComponent)
@@ -52,7 +52,7 @@ export class WizardComponent implements OnInit, AfterContentInit {
     return this._isCompleted;
   }
 
-  get activeStep(): WizardStepComponent {      
+  get activeStep(): WizardStepComponent {
     return this.steps.find(step => step.isActive);
   }
 
@@ -68,17 +68,21 @@ export class WizardComponent implements OnInit, AfterContentInit {
     return this.steps.indexOf(this.activeStep);
   }
 
-  get hasNextStep(): boolean {     
+  get hasNextStep(): boolean {
     return this.activeStepIndex < this.steps.length - 1;
   }
 
-  get hasPrevStep(): boolean {     
+  get hasPrevStep(): boolean {
     return this.activeStepIndex > 0;
   }
 
   goToStep(step: WizardStepComponent) {
     if (!this.isCompleted) {
       this.activeStep = step;
+
+      //if(this.activeStep.isActive){
+       // this.activeStep.onNext.emit();
+      //}
     }
   }
 

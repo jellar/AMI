@@ -5,6 +5,6 @@
 
 export const environment = {
   production: false,
-  baseApiUrl: 'http://localhost:56702/',
+  baseApiUrl: 'http://localhost:801/',
   refreshTokenBeforeSeconds: 600
 };

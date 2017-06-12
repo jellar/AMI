@@ -1,6 +1,7 @@
 import { RouterModule} from '@angular/router';
 import { LoginComponent} from './login/login.component';
 import { HomeComponent} from './home/home.component';
+import { EmployeeComponent} from './employee/employee.component';
 import { AuthGuard } from './auth/auth.guard';
 
 export const routing = RouterModule.forRoot([    
@@ -16,6 +17,11 @@ export const routing = RouterModule.forRoot([
     {   
     path: 'home',
     component: HomeComponent,
+    canActivate: [AuthGuard]
+},
+ {   
+    path: 'employee',
+    component: EmployeeComponent,
     canActivate: [AuthGuard]
     }
 ]);

@@ -14,30 +14,28 @@ export class QuestionService {
     let questions: QuestionBase<any>[] = [
 
       new DropdownQuestion({
-        key: 'brave',
-        label: 'Bravery Rating',
+        key: 'caller',
+        label: 'Who is the caller?',
         options: [
-          {key: 'solid',  value: 'Solid'},
-          {key: 'great',  value: 'Great'},
-          {key: 'good',   value: 'Good'},
-          {key: 'unproven', value: 'Unproven'}
+          {key: 'self',  value: 'Self'},
+          {key: 'other',  value: 'Other'}          
         ],
-        order: 3
-      }),
-
-      new TextboxQuestion({
-        key: 'firstName',
-        label: 'First name',
-        value: 'Bombasto',
-        required: true,
         order: 1
       }),
 
       new TextboxQuestion({
-        key: 'emailAddress',
-        label: 'Email',
-        type: 'email',
+        key: 'surname',
+        label: 'Employee Surname',
+        value: '',
+        required: true,
         order: 2
+      }),
+
+      new TextboxQuestion({
+        key: 'dateOfBirth',
+        label: 'Empoyee DoB',
+        type: 'date',
+        order: 3
       })
     ];
 
